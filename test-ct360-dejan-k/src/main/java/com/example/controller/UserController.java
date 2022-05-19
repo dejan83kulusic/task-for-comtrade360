@@ -1,9 +1,11 @@
 package com.example.controller;
 
+import com.example.exception.ResourceNotFoundException;
 import com.example.model.Todo;
 import com.example.service.TodoService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,43 +29,39 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     @Autowired
     private TodoService service;
-    @RolesAllowed("USER")
-    @GetMapping("/todos")
-	public ResponseEntity<List<Todo>> getAllProducts() {
-		return ResponseEntity.ok().body(service.getAllTodo());
+	@GetMapping("/todos")
+	public List < Todo > getAllEmployees() {
+		return service.getAllTodo();
 	}
-    @RolesAllowed("USER")
+
+
 	@GetMapping("/todos/{id}")
-	public ResponseEntity<Optional<Todo>> getAllUsers(@PathVariable Integer id) {
-		return ResponseEntity.ok().body(service.findOne(id));
+
+	public ResponseEntity < Todo > getEmployeeById(@PathVariable(value = "id") Integer id)
+			throws ResourceNotFoundException {
+		Todo todo = service.getEmployeeById(id)
+				.orElseThrow(()-> new ResourceNotFoundException("Employee not found for this id :: " + id));
+		return ResponseEntity.ok().body(todo);
 	}
-    @RolesAllowed("ADMIN")
+
+
+
+	@RolesAllowed("ADMIN")
 	@PostMapping("/todos")
-	public ResponseEntity<Todo> createProduct(@RequestBody Todo todo) {
-		return ResponseEntity.ok().body(service.createTodo(todo));
+	public Todo createEmployee(@Validated @RequestBody Todo todo) {
+		return service.createTodo(todo);
 	}
-	
-    @RolesAllowed("USER")
+
 	@PutMapping("/todos/{id}")
-	public ResponseEntity<Todo> updatUser(@PathVariable Integer id,@RequestBody Todo todo) {
+	public ResponseEntity < Todo > updateEmployee(@PathVariable(value = "id") Integer id,
+													  @Validated @RequestBody Todo todo) throws ResourceNotFoundException {
 		todo.setId(id);
 		return ResponseEntity.ok().body(service.updateTodo(todo));
 	}
-	/*
-	@DeleteMapping("/users/{id}")
-	public ResponseEntity<Product> deleteProduct(@PathVariable Long id){
-		this.productService.deleteProcut(id);
-		return (ResponseEntity<Product>) ResponseEntity.status(HttpStatus.OK);
-		
-		*/
-    @RolesAllowed("USER")
-    @DeleteMapping("/todos/{id}")
-	public HttpStatus deleteProduct(@PathVariable Integer id){
-		this.service.deleteTodo(id);
-		return HttpStatus.OK;
+
+	@DeleteMapping("/todos/{id}")
+	public Map< String, Boolean > deleteEmployee(@PathVariable(value = "id") Integer id)
+			throws ResourceNotFoundException {
+		return service.deleteTodo(id);
 	}
-	
-  
- 
-  
 }

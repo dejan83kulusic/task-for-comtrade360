@@ -1,6 +1,6 @@
 package com.example.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,9 +13,8 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 /**
  *
  */
-@SuppressWarnings("deprecation")
+
 @Configuration
-@EnableWebSecurity
 public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
@@ -28,16 +27,19 @@ public class MySecurityConfig extends WebSecurityConfigurerAdapter {
 	 * http.csrf().disable();
 	 * http.authorizeRequests().anyRequest().fullyAuthenticated().and().
 	 * httpBasic(); }
-	 */
 
+	 */
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
 		http.authorizeRequests().antMatchers("/secure/**").fullyAuthenticated().and().httpBasic();
+		http.csrf()
+				.ignoringAntMatchers("/actuator/**");
 	}
 
+
 	@Override
-	public void configure(WebSecurity web) throws Exception {
+	public void configure( WebSecurity web) throws Exception {
 		web.ignoring().antMatchers("/h2-console/**");
 	}
 
